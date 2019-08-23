@@ -2,20 +2,24 @@
 platform: linux
 inputs:
   - name: ((input))
-    path: /
+    path: aws-machete
 
 run:
   path: /bin/sh
-  dir: ((build-path))
+  dir: aws-machete
   args:
     - -c
     - |
       set -e
+      apk add git
+      ln -s $PWD $GOPATH/src
+      cd ((build-path))
       go get -d ./...
-      go test
-      go build -o main .
+      go test ./... -v -tags netgo
+      go build -tags netgo -o main .
       VERSION=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 6 ; echo '')
-      cp main ../../bin/((bin-name))-${VERSION}
+      ls
+      cp main ../../../bin/((bin-name))-${VERSION}
 
 outputs:
   - name: bin
