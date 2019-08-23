@@ -28,8 +28,8 @@ run:
       # fill in args for dockerfile
       BUILD_ARGS_GOLANG_BASE=$(cat ./golang-cli/tag)
       BUILD_ARGS_GOLANG_BASE_DIGEST=$(cat ./golang-cli/digest)
-      TAG=$(cat ./container-test-semver/number)
-      CONTEXT=$PWD/github-machete-dockerfile/docker
+      TAG=$(cat ./((docker-semver))/number)
+      CONTEXT=$PWD/((dockerfile))/docker
       
       # copy built bin into dockerfile
       cp ./s3-artifact/s3-* $CONTEXT/s3
@@ -43,3 +43,7 @@ run:
       # copy to output folder
       cd ../..
       cp $CONTEXT/image/* ./image/
+
+# Run this task
+# fly -t prod execute -c ./build-task.yml --inputs-from aws-machete-pr/docker-build --image=builder-task \
+#   -v docker-semver=container-pr-semver -v dockerfile=github-machete-pr -v repository=test/test -p
