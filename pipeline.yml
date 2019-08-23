@@ -26,7 +26,7 @@ resources:
     type: git
     source:
       uri: https://github.com/Bit-Clouded/aws-machete.git
-      paths: ['pipeline.yml, pipeline-pr.yml']
+      paths: ['pipeline.yml', 'pipeline-pr.yml']
   
   # bin input
   - name: github-machete-s3
