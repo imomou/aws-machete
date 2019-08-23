@@ -7,10 +7,10 @@ params:
   #CONTEXT: github-machete-dockerfile <- overriden using script
 
 inputs:
-- name: container-test-semver
+- name: ((docker-semver))
 - name: cloudformation-artifact
 - name: s3-artifact
-- name: github-machete-dockerfile
+- name: ((dockerfile))
 - name: golang-cli
 
 outputs:
