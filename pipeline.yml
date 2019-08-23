@@ -26,7 +26,7 @@ resources:
     type: git
     source:
       uri: https://github.com/Bit-Clouded/aws-machete.git
-      paths: ['pipeline.yml']
+      paths: ['pipeline.yml, pipelin-pr.yml']
   
   # bin input
   - name: github-machete-s3
@@ -127,6 +127,13 @@ jobs:
             unpaused: true
             team: main
             config_file: github-machete-pipeline/pipeline.yml
+      - put: concourse-pipeline
+        params:
+          pipelines:
+          - name: aws-machete-pr
+            unpaused: true
+            team: main
+            config_file: github-machete-pipeline/pipeline-pr.yml
 
   - name: build-s3
     public: true
