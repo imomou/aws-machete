@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"aws-machete/src/cloudformation/cmd"
 )
 
 func main() {
-	fmt.Println("work in progress...")
+	cmd.CommandManagerInstance.Execute()
 }
