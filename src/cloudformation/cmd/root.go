@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	//"github.com/aws/aws-sdk-go/aws"
 	"github.com/spf13/cobra"
 )
 
@@ -8,8 +10,7 @@ func (cm *CommandManagement) rootCmdRun(cmd *cobra.Command, args []string) {
 	cmd.Help()
 }
 
-var rootCmdLong = `CloudFormation cli utility that can can do more sophisticated actions
-awscli cannot, such as copy a stack, etc.`
+var rootCmdLong = `CloudFormation cli utility that can can do more sophisticated actions awscli cannot, such as copy a stack, etc.`
 
 func initRootCmd() *CommandManagement {
 	cm := &CommandManagement{
@@ -21,9 +22,16 @@ func initRootCmd() *CommandManagement {
 		Short: "CloudFormation cli utility that does things awscli cannot.",
 		Long:  rootCmdLong,
 		Run:   cm.rootCmdRun,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			mode, _ := cmd.Flags().GetString("mode")
+			cm.config.mode = ParseMode(mode)
+			fmt.Printf("Mode: %#v\n", mode)
+			return nil
+		},
 	}
-	cm.initUpdateCmd()
 	cm.initFlags()
+	cm.initUpdateCmd()
+	cm.initDeleteAllCmd()
 
 	return cm
 }
