@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type CommandManager interface {
@@ -12,11 +13,14 @@ type CommandManagement struct {
 	root       *cobra.Command
 	config     *config
 	cfnManager *cfnManagement
+	viper      *viper.Viper
 }
 
 type config struct {
-	mode    mode
-	timeout int
+	mode       mode
+	timeout    int
+	file       string
+	fileFormat string
 }
 
 type mode int
