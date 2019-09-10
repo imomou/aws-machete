@@ -7,10 +7,15 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/spf13/viper"
 )
 
 func TestUpdateCmdPreRunE_ValidatesHasUpdateParams(t *testing.T) {
-	ucmd := &updateCmd{}
+	ucmd := &updateCmd{
+		cm: &CommandManagement{
+			viper: viper.New(),
+		},
+	}
 
 	err := ucmd.preRunE(nil, nil)
 
@@ -20,8 +25,14 @@ func TestUpdateCmdPreRunE_ValidatesHasUpdateParams(t *testing.T) {
 }
 
 func TestUpdateCmdPreRunE_Success(t *testing.T) {
+	vip := viper.New()
+	vip.Set("param", map[string]string{"a": "b"})
+	vip.Set("target", "something")
 	ucmd := &updateCmd{
 		params: map[string]string{"a": "b"},
+		cm: &CommandManagement{
+			viper: vip,
+		},
 	}
 
 	err := ucmd.preRunE(nil, nil)
