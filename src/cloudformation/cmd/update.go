@@ -135,8 +135,17 @@ func (uc *updateCmd) runE(cmd *cobra.Command, args []string) error {
 
 func (uc *updateCmd) preRunE(cmd *cobra.Command, args []string) error {
 
+	localViper := uc.cm.viper
+	uc.target = localViper.GetString("target")
+	uc.params = localViper.GetStringMapString("param")
+	uc.tags = localViper.GetStringMapString("tag")
+	uc.templatePath = localViper.GetString("template-path")
+
 	// parameter validations
 	var errstrings []string
+	if uc.target == "" {
+		errstrings = append(errstrings, "Please specify target stack to update.")
+	}
 	if len(uc.params) == 0 && len(uc.tags) == 0 && uc.templatePath == "" {
 		errstrings = append(errstrings, "Nothing specified to update.")
 	}
@@ -164,12 +173,10 @@ func (cm *CommandManagement) initUpdateCmd() {
 	}
 
 	// local params
-	cmd.Flags().StringVarP(&ucmd.target, "target", "t", "", "Stack name or arn to update")
-	cmd.MarkFlagRequired("target")
-
-	cmd.Flags().StringToStringVarP(&ucmd.params, "param", "p", nil, "Parameters to override")
-	cmd.Flags().StringToStringVarP(&ucmd.tags, "tag", "g", nil, "Parameters to override")
-	cmd.Flags().StringVar(&ucmd.templatePath, "template-path", "", "Parameters to override")
+	cmd.Flags().StringP("target", "t", "", "Stack name or arn to update")
+	cmd.Flags().StringToStringP("param", "p", nil, "Parameters to override")
+	cmd.Flags().StringToStringP("tag", "g", nil, "Parameters to override")
+	cmd.Flags().String("template-path", "", "Parameters to override")
 
 	// wire methods.
 	cmd.PreRunE = ucmd.preRunE

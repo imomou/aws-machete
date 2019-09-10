@@ -31,11 +31,11 @@ type cfnManager struct {
 }
 
 func newCfnClient() *cfnManagement {
-	var sess = session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2"),
-	}))
+	var sess = session.Must(session.NewSession(&aws.Config{}))
 
-	ec2client := ec2.New(sess)
+	ec2client := ec2.New(session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("us-west-2"),
+	})))
 	regions, _ := ec2client.DescribeRegions(&ec2.DescribeRegionsInput{AllRegions: aws.Bool(true)})
 	cfnPerRegion := make(map[string]*cloudformationiface.CloudFormationAPI)
 	for _, region := range regions.Regions {

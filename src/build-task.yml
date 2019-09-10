@@ -23,3 +23,6 @@ run:
 
 outputs:
   - name: bin
+
+caches: 
+  - path: '/go'
