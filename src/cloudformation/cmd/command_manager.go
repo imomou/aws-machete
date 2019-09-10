@@ -17,10 +17,8 @@ type CommandManagement struct {
 }
 
 type config struct {
-	mode       mode
-	timeout    int
-	file       string
-	fileFormat string
+	mode    mode
+	timeout int
 }
 
 type mode int
