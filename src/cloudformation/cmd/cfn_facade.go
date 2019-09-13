@@ -13,7 +13,7 @@ func (cm *CommandManagement) createAndExecute(
 		// TODO print details.
 		return nil
 	}
-	createCsOutput, createCsError := (*cm.cfnManager).createChangeSet(stackName, params, tags, templateBody, changeSetType)
+	createCsOutput, createCsError := cm.cfnManager.createChangeSet(stackName, params, tags, templateBody, changeSetType)
 	if createCsError != nil {
 		return createCsError
 	}
@@ -34,11 +34,11 @@ func (cm *CommandManagement) createAndExecute(
 			return nil
 		}
 	}
-	return (*cm.cfnManager).executeChangeSet(createCsOutput.StackId, createCsOutput.Id)
+	return cm.cfnManager.executeChangeSet(createCsOutput.StackId, createCsOutput.Id)
 }
 
 func (cm *CommandManagement) filterParameters(templateBody *string, values *map[string]string) ([]*cloudformation.Parameter, error) {
-	tempSummary, tempSummaryErr := (*cm.cfnManager).getTemplateSummary(templateBody)
+	tempSummary, tempSummaryErr := cm.cfnManager.getTemplateSummary(templateBody)
 	if tempSummaryErr != nil {
 		return nil, tempSummaryErr
 	}

@@ -19,7 +19,7 @@ type updateCmd struct {
 
 func (uc *updateCmd) runE(cmd *cobra.Command, args []string) error {
 
-	cfnManager := *uc.cm.cfnManager
+	cfnManager := uc.cm.cfnManager
 
 	// Get template first.
 	var templateString string

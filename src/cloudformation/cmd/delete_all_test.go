@@ -8,10 +8,10 @@ import (
 )
 
 func TestDeleteAllCmdPreRunE_ValidatesHasUpdateParams(t *testing.T) {
-	var mockCfnManager cfnManagement = &mockCfnManager{}
+	mockCfnManager := &mockCfnManager{}
 	ucmd := &deleteAllCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: mockCfnManager,
 			config:     &config{mode: noninteractive},
 		},
 	}
@@ -54,7 +54,7 @@ func TestDeleteAllCmdPreRunE_Success(t *testing.T) {
 	}
 	ucmd := &deleteAllCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: mockCfnManager,
 			config:     &config{mode: noninteractive},
 		},
 	}

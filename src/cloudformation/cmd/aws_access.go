@@ -30,7 +30,7 @@ type cfnManager struct {
 	cfnRegions      map[string]*cloudformationiface.CloudFormationAPI
 }
 
-func newCfnClient() *cfnManagement {
+func newCfnClient() cfnManagement {
 	var sess = session.Must(session.NewSession(&aws.Config{}))
 
 	ec2client := ec2.New(session.Must(session.NewSession(&aws.Config{
@@ -58,7 +58,7 @@ func newCfnClient() *cfnManagement {
 		},
 		cfnRegions: cfnPerRegion,
 	}
-	return &result
+	return result
 }
 
 func (client *cfnManager) delete(stackArn *string) error {

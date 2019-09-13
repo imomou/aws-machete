@@ -12,7 +12,7 @@ type CommandManager interface {
 type CommandManagement struct {
 	root       *cobra.Command
 	config     *config
-	cfnManager *cfnManagement
+	cfnManager cfnManagement
 	viper      *viper.Viper
 }
 

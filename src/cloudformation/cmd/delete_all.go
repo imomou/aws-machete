@@ -14,7 +14,7 @@ type deleteAllCmd struct {
 
 func (uc *deleteAllCmd) runE(cmd *cobra.Command, args []string) error {
 
-	cfnManager := *uc.cm.cfnManager
+	cfnManager := uc.cm.cfnManager
 
 	stackChannel := make(chan *cloudformation.Stack)
 	defer close(stackChannel)

@@ -19,7 +19,7 @@ type ensureCmd struct {
 
 func (uc *ensureCmd) runE(cmd *cobra.Command, args []string) error {
 
-	cfnManager := *uc.cm.cfnManager
+	cfnManager := uc.cm.cfnManager
 
 	stack, stackErr := cfnManager.getStack(&uc.target)
 	if stackErr != nil {

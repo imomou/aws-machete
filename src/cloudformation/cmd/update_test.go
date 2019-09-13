@@ -44,10 +44,9 @@ func TestUpdateCmdPreRunE_Success(t *testing.T) {
 
 func TestUpdateCmdRunE_Success(t *testing.T) {
 	// arrange
-	var mockCfnManager cfnManagement = &mockCfnManager{}
 	ucmd := &updateCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: &mockCfnManager{},
 			config:     &config{mode: noninteractive},
 		},
 	}
@@ -107,7 +106,7 @@ func TestUpdateCmdRunE_SuccessOverridingParam(t *testing.T) {
 	}
 	ucmd := &updateCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: mockCfnManager,
 			config:     &config{mode: noninteractive},
 		},
 		params: map[string]string{
@@ -157,7 +156,7 @@ func TestUpdateCmdRunE_SuccessOverridingParam(t *testing.T) {
 func TestUpdateCmdRunE_SuccessOverridingTag(t *testing.T) {
 	// arrange
 	var resultTags []*cloudformation.Tag
-	var mockCfnManager cfnManagement = &mockCfnManager{
+	mockCfnManager := &mockCfnManager{
 		getStackStub: func(stackName *string) (*cloudformation.Stack, error) {
 			return &cloudformation.Stack{
 				Tags: []*cloudformation.Tag{
@@ -173,7 +172,7 @@ func TestUpdateCmdRunE_SuccessOverridingTag(t *testing.T) {
 	}
 	ucmd := &updateCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: mockCfnManager,
 			config:     &config{mode: noninteractive},
 		},
 		tags: map[string]string{
@@ -214,14 +213,13 @@ func TestUpdateCmdRunE_SuccessOverridingTag(t *testing.T) {
 
 func TestUpdateCmdRunE_StackNotExist(t *testing.T) {
 	// Setup
-	var mockCfnManager cfnManagement = &mockCfnManager{
-		getStackStub: func(stackName *string) (*cloudformation.Stack, error) {
-			return nil, errors.New("stack does not exist")
-		},
-	}
 	ucmd := &updateCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: &mockCfnManager{
+				getStackStub: func(stackName *string) (*cloudformation.Stack, error) {
+					return nil, errors.New("stack does not exist")
+				},
+			},
 		},
 	}
 
