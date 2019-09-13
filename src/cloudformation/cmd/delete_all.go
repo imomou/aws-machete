@@ -59,8 +59,7 @@ func (uc *deleteAllCmd) runE(cmd *cobra.Command, args []string) error {
 				continue
 			}
 
-			delErr := cfnManager.delete(stack.StackId)
-			if delErr != nil {
+			if delErr := cfnManager.delete(stack.StackId); delErr != nil {
 				return delErr
 			}
 		}

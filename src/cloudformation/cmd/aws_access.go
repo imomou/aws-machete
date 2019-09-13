@@ -181,6 +181,10 @@ func (client *cfnManager) getStack(stackName *string) (*cloudformation.Stack, er
 		return nil, err
 	}
 
+	if len(result.Stacks) == 0 {
+		return nil, nil
+	}
+
 	if len(result.Stacks) != 1 {
 		return nil, errors.New(fmt.Sprintf("Multiple stacks found.\n\n%#v", result.Stacks))
 	}
