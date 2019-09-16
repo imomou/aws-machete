@@ -213,13 +213,14 @@ func TestUpdateCmdRunE_SuccessOverridingTag(t *testing.T) {
 
 func TestUpdateCmdRunE_StackNotExist(t *testing.T) {
 	// Setup
+	mockCfnManager := &mockCfnManager{
+		getStackStub: func(stackName *string) (*cloudformation.Stack, error) {
+			return nil, errors.New("stack does not exist")
+		},
+	}
 	ucmd := &updateCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager{
-				getStackStub: func(stackName *string) (*cloudformation.Stack, error) {
-					return nil, errors.New("stack does not exist")
-				},
-			},
+			cfnManager: mockCfnManager,
 		},
 	}
 
