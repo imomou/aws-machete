@@ -12,6 +12,14 @@ run:
     - |
       set -e
       apk add git
+      
+      # Replacing viper with a fork to solve case sensitivity issue.
+      # https://github.com/spf13/viper/pull/635
+      # can be removed if the PR is merged.
+      rm -rf $GOPATH/src/github.com/spf13/viper
+      go get github.com/gbunt/viper
+      ln -s $GOPATH/src/github.com/gbunt/viper $GOPATH/src/github.com/spf13/
+
       ln -s $PWD $GOPATH/src
       cd ((build-path))
       go get -d ./...
@@ -26,3 +34,7 @@ outputs:
 
 caches: 
   - path: '/go'
+  
+#fly -t prod execute -c ./build-task.yml -j aws-machete/build-cloudformation \
+#  -v input=github-machete-cloudformation -v bin-name=cloudformation -v build-path=src/cloudformation \
+#  --input github-machete-cloudformation=../ --image=golang-build
