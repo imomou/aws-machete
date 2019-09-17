@@ -8,10 +8,9 @@ import (
 )
 
 func TestDeleteAllCmdPreRunE_ValidatesHasUpdateParams(t *testing.T) {
-	var mockCfnManager cfnManagement = &mockCfnManager{}
 	ucmd := &deleteAllCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: &mockCfnManager{},
 			config:     &config{mode: noninteractive},
 		},
 	}
@@ -26,7 +25,7 @@ func TestDeleteAllCmdPreRunE_ValidatesHasUpdateParams(t *testing.T) {
 func TestDeleteAllCmdPreRunE_Success(t *testing.T) {
 	// arrange
 	deletedStacks := make([]*string, 0)
-	var mockCfnManager cfnManagement = &mockCfnManager{
+	mockCfnManager := &mockCfnManager{
 		getAllStub: func(stackChan chan *cloudformation.Stack, errChan chan error) {
 			stackChan <- &cloudformation.Stack{
 				StackName:                   aws.String("a"),
@@ -54,7 +53,7 @@ func TestDeleteAllCmdPreRunE_Success(t *testing.T) {
 	}
 	ucmd := &deleteAllCmd{
 		cm: &CommandManagement{
-			cfnManager: &mockCfnManager,
+			cfnManager: mockCfnManager,
 			config:     &config{mode: noninteractive},
 		},
 	}

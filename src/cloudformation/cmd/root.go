@@ -66,6 +66,8 @@ func initRootCmd() *CommandManagement {
 
 	cm.initUpdateCmd()
 	cm.initDeleteAllCmd()
+	cm.initEnsureCmd()
+	cm.viper.SetKeysCaseSensitive(true)
 
 	return cm
 }

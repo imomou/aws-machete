@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/nu7hatch/gouuid"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
@@ -30,7 +33,7 @@ type cfnManager struct {
 	cfnRegions      map[string]*cloudformationiface.CloudFormationAPI
 }
 
-func newCfnClient() *cfnManagement {
+func newCfnClient() cfnManagement {
 	var sess = session.Must(session.NewSession(&aws.Config{}))
 
 	ec2client := ec2.New(session.Must(session.NewSession(&aws.Config{
@@ -58,7 +61,7 @@ func newCfnClient() *cfnManagement {
 		},
 		cfnRegions: cfnPerRegion,
 	}
-	return &result
+	return result
 }
 
 func (client *cfnManager) delete(stackArn *string) error {
@@ -162,7 +165,91 @@ func (client *cfnManager) executeChangeSet(stackname *string, csName *string) er
 	waitInput := &cloudformation.DescribeStacksInput{
 		StackName: stackname,
 	}
-	return client.cfn.WaitUntilStackUpdateComplete(waitInput)
+	return WaitUntilStackCreatedOrUpdated(client.cfn, waitInput)
+	//return client.cfn.WaitUntilStackUpdateComplete(waitInput)
+}
+
+func WaitUntilStackCreatedOrUpdated(c cloudformationiface.CloudFormationAPI, input *cloudformation.DescribeStacksInput) error {
+	ctx := aws.BackgroundContext()
+	w := request.Waiter{
+		Name:        "WaitUntilStackCreatedOrUpdated",
+		MaxAttempts: 120,
+		Delay:       request.ConstantWaiterDelay(30 * time.Second),
+		Acceptors: []request.WaiterAcceptor{
+			{
+				State:   request.SuccessWaiterState,
+				Matcher: request.PathAllWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "CREATE_COMPLETE",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "CREATE_FAILED",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "DELETE_COMPLETE",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "DELETE_FAILED",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "ROLLBACK_FAILED",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "ROLLBACK_COMPLETE",
+			},
+			{
+				State:    request.FailureWaiterState,
+				Matcher:  request.ErrorWaiterMatch,
+				Expected: "ValidationError",
+			},
+			{
+				State:   request.SuccessWaiterState,
+				Matcher: request.PathAllWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "UPDATE_COMPLETE",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "UPDATE_FAILED",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "UPDATE_ROLLBACK_FAILED",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Stacks[].StackStatus",
+				Expected: "UPDATE_ROLLBACK_COMPLETE",
+			},
+			{
+				State:    request.FailureWaiterState,
+				Matcher:  request.ErrorWaiterMatch,
+				Expected: "ValidationError",
+			},
+		},
+		NewRequest: func(opts []request.Option) (*request.Request, error) {
+			var inCpy *cloudformation.DescribeStacksInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeStacksRequest(inCpy)
+			req.SetContext(ctx)
+			return req, nil
+		},
+	}
+
+	return w.WaitWithContext(ctx)
 }
 
 func (client *cfnManager) getTemplateSummary(templateBody *string) (*cloudformation.GetTemplateSummaryOutput, error) {
@@ -178,7 +265,15 @@ func (client *cfnManager) getStack(stackName *string) (*cloudformation.Stack, er
 	})
 
 	if err != nil {
-		return nil, err
+		if aerr, ok := err.(awserr.Error); ok {
+			fmt.Printf("Error code: %#v\n", aerr.Code())
+			switch aerr.Code() {
+			case "ValidationError":
+				return nil, nil
+			default:
+				return nil, err
+			}
+		}
 	}
 
 	if len(result.Stacks) != 1 {
