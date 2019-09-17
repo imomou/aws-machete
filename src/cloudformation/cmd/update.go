@@ -39,7 +39,7 @@ func (uc *updateCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parameters
-	stackParams, spErr := uc.cm.filterParameters(&templateString, &uc.params)
+	stackParams, spErr := uc.cm.filterParameters(&templateString, &uc.params, true)
 	if spErr != nil {
 		return spErr
 	}

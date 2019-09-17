@@ -59,7 +59,7 @@ func (uc *ensureCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parameters
-	stackParams, spErr := uc.cm.filterParameters(&templateString, &uc.params)
+	stackParams, spErr := uc.cm.filterParameters(&templateString, &uc.params, stack != nil)
 	if spErr != nil {
 		return spErr
 	}

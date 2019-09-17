@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	//"strings"
 )
 
 func (cm *CommandManagement) createAndExecute(
@@ -37,27 +39,31 @@ func (cm *CommandManagement) createAndExecute(
 	return cm.cfnManager.executeChangeSet(createCsOutput.StackId, createCsOutput.Id)
 }
 
-func (cm *CommandManagement) filterParameters(templateBody *string, values *map[string]string) ([]*cloudformation.Parameter, error) {
+func (cm *CommandManagement) filterParameters(templateBody *string, values *map[string]string, isUpdate bool) ([]*cloudformation.Parameter, error) {
 	tempSummary, tempSummaryErr := cm.cfnManager.getTemplateSummary(templateBody)
 	if tempSummaryErr != nil {
 		return nil, tempSummaryErr
 	}
 
 	stackParams := make([]*cloudformation.Parameter, len(tempSummary.Parameters))
+	fmt.Printf("Keys: %#v\n", values)
 	for index, stackParam := range tempSummary.Parameters {
 		parameterValue, exist := (*values)[*stackParam.ParameterKey]
-		userPreviousValue := !exist
+		//userPreviousValue := !exist
 		if exist {
+			fmt.Printf("Param key: %#v\n", stackParam.ParameterKey)
 			stackParams[index] = &cloudformation.Parameter{
 				ParameterKey:     stackParam.ParameterKey,
 				ParameterValue:   &parameterValue,
-				UsePreviousValue: &userPreviousValue,
+				UsePreviousValue: aws.Bool(false),
 			}
 		} else {
 			stackParams[index] = &cloudformation.Parameter{
-				ParameterKey:     stackParam.ParameterKey,
-				ParameterValue:   nil,
-				UsePreviousValue: &userPreviousValue,
+				ParameterKey:   stackParam.ParameterKey,
+				ParameterValue: nil,
+			}
+			if isUpdate {
+				stackParams[index].UsePreviousValue = aws.Bool(true)
 			}
 		}
 	}

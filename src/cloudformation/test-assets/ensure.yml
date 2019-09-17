@@ -1,0 +1,7 @@
+target: test-stack
+template-path: ./test.template
+param:
+  TestPath: testasdf
+mode: noninteractive
+tag:
+  Tag1: asdfasdf
