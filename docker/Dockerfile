@@ -6,7 +6,8 @@ FROM $GOLANG_BASE$GOLANG_BASE_DIGEST
 RUN mkdir /bcbin/
 WORKDIR /bcbin/
 
-ADD s3 ./
-ADD cloudformation ./
+ADD s3 /usr/bin/
+ADD cloudformation /usr/bin/
 
-RUN chmod +x ./*
+RUN chmod +x /usr/bin/s3
+RUN chmod +x /usr/bin/cloudformation
